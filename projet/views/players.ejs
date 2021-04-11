@@ -1,0 +1,36 @@
+<%- include('header') %>
+
+<div class="container mx-auto">
+	<h1 class="text-5xl">Players</h1>
+	<ul>
+		<% for (const player of players) { %>
+		<li class="flex justify-between">
+			<%= player.name %>
+			<div>
+				<button class="info-player-btn">
+					<a href="<%= "http://localhost:5000/players/" + player._id %>">Editer</a>
+				</button>
+				<button class="delete-btn" data-id="<%=player._id%>">Supprimer</button>
+			</div>
+		</li>
+		<% } %>
+	</ul>
+
+	<script>
+		document.addEventListener('DOMContentLoaded', e => {
+			const deleteBtnList = document.getElementsByClassName('delete-btn');
+
+			for (const btn of deleteBtnList) {
+				btn.addEventListener('click', async e => {
+					try {
+						await axios.delete(`http://localhost:5000/players/${btn.dataset.id}`);
+						document.location.reload();
+					} catch (err) {
+						console.error(err.message);
+					}
+				});
+			}
+		});
+	</script>
+	<%- include('footer') %>
+</div>

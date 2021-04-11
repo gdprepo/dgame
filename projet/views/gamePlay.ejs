@@ -1,0 +1,32 @@
+<%- include('header') %>
+
+	<div class="container mx-auto">
+		<h1 class="text-5xl">Games Play</h1>
+
+		<button id="valider" class="btn btn-success">Valider</button>
+
+
+	</div>
+
+
+	<script>
+
+		document.addEventListener('DOMContentLoaded', e => {
+			const valider = document.getElementById('valider');
+
+			valider.addEventListener('click', async e => {
+				try {
+					await axios.post(`http://localhost:5000/games/`, {
+						name: document.getElementById('name').value,
+						mode: document.getElementById('mode').value
+					});
+				} catch (err) {
+					console.error(err.message);
+				}
+			});
+
+		});
+
+
+
+	</script>

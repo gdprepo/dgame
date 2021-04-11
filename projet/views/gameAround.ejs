@@ -1,0 +1,178 @@
+<%- include('header') %>
+	<style>
+		.select {
+			background-color: rgba(0, 0, 0, 0.492);
+			width: 100%;
+			color: white;
+		}
+	</style>
+
+
+	<div class="container mx-auto">
+		<h2 class="text-4xl">Name: <%= game.name %> Mode Around
+		</h2>
+		<h3 class="text-3xl">mode: <%= game.mode %>
+		</h3>
+		<p>status: <%= game.status %>
+		</p>
+		<div class="name">
+			<%= game.players[0] %>
+
+		</div>
+		<div class="score">
+			Il a un score de <%= gameplayer[0].score %>
+		</div>
+		<input type="hidden" name="<%= game.id %>" id="gameId">
+
+		<div class="shots">Vous avez <%= gameplayer[0].remainingShots %> essais</div>
+		</p>
+		<div class="row">
+			<div class="col-3">
+				<ul class="list-group">
+					<% for (var i=0; i < game.players.length; i++) { %>
+
+						<% if (game.currentPlayerId==players[i]) { %>
+							<li style="text-align: center;" id="<%= players[i] %>"
+								class="select list-group-item player_list user_<%= i %>">
+								<%= game.players[i] %>
+									<input type="hidden" class="index" name="<%= i %>">
+							</li>
+
+							<% } else { %>
+								<li style="text-align: center;" id="<%= players[i] %>"
+									class="list-group-item player_list user_<%= i %>">
+									<%= game.players[i] %>
+								</li>
+
+								<% } %>
+
+
+									<% }; %>
+				</ul>
+
+			</div>
+			<div style="display: flex;" class="row">
+
+				<% for (var i=1; i < gameEngine.target.length+1; i++) { %>
+					<div class="col-3">
+						<button id="<%= i %>" style="width: 100%; padding: 10px; margin: 10px" type="button"
+							class="btn btn-dark sector">sector <%= gameEngine.target[i-1].sector %></button>
+
+					</div>
+
+
+
+					<% }; %>
+			</div>
+
+
+		</div>
+
+
+	</div>
+
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script>
+		const res = document.getElementsByClassName('player_list')
+		const sector = document.querySelectorAll('.sector')
+		const taille = <%- game.players.length %>;
+
+		const name = document.getElementById('name');
+
+		const gameId = $('#gameId').attr('name');
+
+		var select = 0
+
+
+		$(function () {
+
+			var playerName = null;
+			var shots = null;
+			var score = null;
+
+			const index = $('.index').attr('name');
+			console.log("index " +index)
+
+			//const playerNames = "<%= game.players %>"
+
+			<% for (var i=0; i < game.players.length; i++) { %>
+				if ('<%= i %>' == index) {
+					playerName = '<%= game.players[i] %>'
+					shots = '<%= gameplayer[i].remainingShots %>'
+					score = '<%= gameplayer[i].score %>'
+				} 
+			<% } %>
+
+			$('.name').html("C'est à <strong>" + playerName + "</strong> de jouer !")
+			$('.shots').html("Vous avez "+ shots +" essais")
+			$('.score').html("Il a un score de "+ score)
+
+
+
+			if (playerName == null) {
+				window.location.href = `http://localhost:5000/games/${gameId}`;
+			}
+
+			let cible = 0;
+			sector.forEach((e) => {
+
+				if (cible == parseInt(score)) {
+					e.classList.add('select')
+				}
+
+				cible++
+
+
+			})
+		
+
+			//	$('.user_' + select).addClass('select');
+			//	$('#name').text($('.user_' + select).text())
+			console.log("coucou=" + $('.user_' + select).attr('id'))
+			sector.forEach((e) => {
+				e.addEventListener('click', async (element) => {
+
+					try {
+						console.log(e.id)
+						console.log($('.user_' + select).attr('id'))
+
+						const data = await axios.post(`http://localhost:5000/games/${gameId}/shots`, {
+							playerId: $('.select').attr('id'),
+							secteur: e.id,
+						});
+
+
+						//window.location.href = `http://localhost:5000/games/${gameId}`;
+
+						if (data.data.message == "NEXT") {
+//							cible++;
+//							index++
+						}
+
+						console.log('LOURD')
+						
+
+
+					} catch (err) {
+						console.error(err.message);
+					}
+
+
+				})
+
+
+			})
+
+		})
+
+		$('.player_list').each((e) => {
+			console.log('okok')
+
+		})
+
+
+
+
+
+	</script>

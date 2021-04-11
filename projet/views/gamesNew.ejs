@@ -1,0 +1,79 @@
+<%- include('header') %>
+
+	<div class="container mx-auto">
+		<h1 class="text-5xl">Games New</h1>
+
+		<select id="mode" class="form-select" aria-label="Default select example">
+			<option selected>Open this select menu</option>
+			<option value="around-the-world">Around The World</option>
+			<option value="301">301</option>
+			<option value="cricket">Cricket</option>
+		</select>
+
+
+		<label>Joueurs</label>
+		<select name="players[]" class="form-select" id="players" multiple aria-label="multiple select example">
+				
+			<% players.forEach(player => { %>
+			
+				<option value="<%= player._id %>"><%= player.name %> </option>
+				
+			<% }); %>
+	
+
+		</select>
+
+		<input id="status" type="hidden" value="draft">
+
+		<input type="text" id="name" name="name" placeholder="Entrer un nom de partie">
+
+		<button id="valider" class="btn btn-success">Valider</button>
+
+
+	</div>
+
+
+	<script>
+
+		document.addEventListener('DOMContentLoaded', e => {
+			const valider = document.getElementById('valider');
+			const players = document.getElementById('players');
+
+			players.addEventListener('change', function(e) {
+			const selected = document.querySelectorAll('#players option:checked');
+
+				console.log(Array.from(selected).map(el => el.value))
+			})
+
+
+			valider.addEventListener('click', async e => {
+				try {
+					const selected = document.querySelectorAll('#players option:checked');
+
+
+					const request = await axios.post(`http://localhost:5000/games/`, {
+						name: document.getElementById('name').value,
+						mode: document.getElementById('mode').value,
+						players: Array.from(selected).map(el => el.innerHTML.replace(' ', ''))
+					});
+
+					const gameplay = await axios.patch(`http://localhost:5000/games/${request.data.game}`, {
+						name: document.getElementById('name').value,
+						mode: document.getElementById('mode').value,
+						status: document.getElementById('status').value,
+						players: Array.from(selected).map(el => el.value)
+					});
+
+
+					window.location.href = `http://localhost:5000/games/${request.data.game}`;
+					//window.location.href = `http://localhost:5000/games/${request.data.game}`;
+				} catch (err) {
+					console.error(err.message);
+				}
+			});
+
+		});
+
+
+
+	</script>

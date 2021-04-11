@@ -1,0 +1,42 @@
+<%- include('header') %>
+
+<div class="container mx-auto">
+	<form id="player-edit-form" data-id="<%= player._id %>">
+		<label for="name">Name</label>
+		<input type="text" name="name" id="name" placeholder="<%= player.name %>" />
+
+		<label for="email">Email</label>
+		<input
+			type="email"
+			name="email"
+			id="email"
+			placeholder="<%= player.email %>"
+		/>
+
+		<input type="submit" value="Submit" />
+	</form>
+</div>
+
+<script>
+	let playerForm = document.getElementById('player-edit-form');
+
+	playerForm.addEventListener('submit', async e => {
+		e.preventDefault();
+
+		try {
+			await axios.patch(
+				`http://localhost:5000/players/${playerForm.dataset.id}`,
+				{
+					name: document.getElementById('name').value,
+					email: document.getElementById('email').value,
+				}
+			);
+
+			document.location.reload();
+		} catch (err) {
+			console.error(err.message);
+		}
+	});
+</script>
+
+<%- include('footer') %>

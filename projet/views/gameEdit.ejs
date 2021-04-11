@@ -1,0 +1,51 @@
+<%- include('header') %>
+
+<style>
+	input {
+		margin: 10px;
+		border: 1px solid black;
+		padding: 5px;
+	}
+
+	form {
+		text-align: center;
+	}
+
+
+</style>
+
+
+<div style="padding: 50px;" class="container mx-auto">
+	<form style="padding: 50x;" id="player-edit-form" data-id="<%= game._id %>">
+		<label>Name: <%= game.name %></label><br>
+		<input type="text" id="name" name="name" placeholder="Entrer un nom de partie">
+		<br>
+
+		<label for="">Mode : <%= game.mode %></label>
+
+		<button type="submit" value="Submit" class="btn btn-success">Update</button>
+	</form>
+</div>
+
+<script>
+	let playerForm = document.getElementById('player-edit-form');
+
+	playerForm.addEventListener('submit', async e => {
+		e.preventDefault();
+
+		try {
+			await axios.patch(
+				`http://localhost:5000/games/${playerForm.dataset.id}`,
+				{
+					name: document.getElementById('name').value,
+				}
+
+			);
+
+			document.location.reload();
+		} catch (err) {
+			console.error(err.message);
+		}
+	});
+</script>
+

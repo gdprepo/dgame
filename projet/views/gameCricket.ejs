@@ -1,0 +1,147 @@
+<%- include('header') %>
+	<style>
+		.select {
+			background-color: rgba(0, 0, 0, 0.492);
+			width: 100%;
+			color: white;
+		}
+	</style>
+
+
+	<div class="container mx-auto">
+		<h2 class="text-4xl">Name: <%= game.name %> MODE CRICKET
+		</h2>
+		<h3 class="text-3xl">mode: <%= game.mode %>
+		</h3>
+		<p>status: <%= game.status %>
+		</p>
+		<p>C'est à <strong id="name">
+				<%= game.players[0] %>
+			</strong> de jouer ! Il a un score de <strong id="score">
+				<%= gameplayer[0].score %>
+			</strong></p>
+		<input type="hidden" name="<%= game.id %>" id="gameId">
+		<p>
+			<strong>Vous avez <%= gameplayer[0].remainingShots %> essaies</strong>
+		</p>
+		<div class="row">
+			<div class="col-3">
+				<ul class="list-group">
+					<% for (var i=0; i < game.players.length; i++) { %>
+
+						<% if (game.currentPlayerId == players[i]) { %>
+						<li style="text-align: center;" id="<%= players[i] %>"
+							class="select list-group-item player_list user_<%= i %>">
+							<%= game.players[i] %>
+						</li>
+
+						<% } else { %>
+							<li style="text-align: center;" id="<%= players[i] %>"
+								class="list-group-item player_list user_<%= i %>">
+								<%= game.players[i] %>
+							</li>
+
+						<% } %>
+
+
+					<% }; %>
+				</ul>
+
+			</div>
+			<div style="display: flex;" class="row">
+
+				<% for (var i=1; i < gameEngine.target.length+1; i++) { %>
+					<div class="col-3">
+						<button id="<%= i %>" style="width: 100%; padding: 10px; margin: 10px" type="button"
+							class="btn btn-dark sector">sector <%= gameEngine.target[i-1].sector %></button>
+
+					</div>
+
+
+
+					<% }; %>
+			</div>
+
+
+		</div>
+
+
+	</div>
+
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script>
+		const res = document.getElementsByClassName('player_list')
+		const sector = document.querySelectorAll('.sector')
+		const taille = <%= game.players.length %>;
+
+		const gameId = $('#gameId').attr('name');
+
+		var select = 0
+
+		function getIndex(id) {
+			var index = 0;
+
+			players.forEach((e) => {
+				if (e._id == id) {
+					return index
+				}
+				index++
+			})
+			return false
+		}
+
+		$(function () {
+
+
+
+
+		//	$('.user_' + select).addClass('select');
+			$('#name').text($('.user_' + select).text())
+			console.log("coucou=" + $('.user_' + select).attr('id'))
+			sector.forEach((e) => {
+				e.addEventListener('click', async (element) => {
+
+					try {
+						console.log(e.id)
+						console.log($('.user_' + select).attr('id'))
+
+						const shot = await axios.post(`http://localhost:5000/games/${gameId}/shots`, {
+							playerId: $('.user_' + select).attr('id'),
+							secteur: e.id
+						});							
+						
+						console.log('LOURD')
+						const reload = await window.location.reload(true);
+
+
+						if (request.nbDart == 0) {
+							if (select < taille) {
+								select++
+							} else {
+								select = 0
+							}
+						}
+
+					} catch (err) {
+						console.error(err.message);
+					}
+
+
+				})
+
+
+			})
+
+		})
+
+		$('.player_list').each((e) => {
+			console.log('okok')
+
+		})
+
+
+
+
+
+	</script>
