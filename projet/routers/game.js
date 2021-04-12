@@ -87,8 +87,28 @@ router.post("/", async (req, res) => {
  */
 router.get("/:id", async (req, res) => {
   try {
-    const game = await Game.findById(req.params.id);
     const gameplayer = await GamePlayer.find({ gameId: req.params.id });
+
+    const gameP = await GamePlayer.find({
+      gameId: req.params.id,
+      inGame: true,
+    });
+
+    if (gameP == "") {
+      const gameEnd = await Game.findOneAndUpdate(
+        { _id: req.params.id },
+        { $set: { status: "ended" } },
+        { new: true }
+      );
+      const saveG = gameEnd.save();
+
+      const winnerGp = await GamePlayer.find({ gameId: req.params.id, rank: 1 });
+      const winner = await Player.findById(winnerGp[0].playerId)
+
+      var message = `Partie Finie ! Le Gagnant est ${winner.name}`;
+    }
+
+    const game = await Game.findById(req.params.id);
 
     if (gameplayer) {
       var index = 0;
@@ -167,6 +187,7 @@ router.get("/:id", async (req, res) => {
         players: playersIds,
         gameEngine: gameEngine,
         modeSelect: modeSelect,
+        message: message,
       });
     } else if (game.mode == "cricket") {
       modeSelect = new Cricket(gameEngine.players);
@@ -177,6 +198,7 @@ router.get("/:id", async (req, res) => {
         players: playersIds,
         gameEngine: gameEngine,
         modeSelect: modeSelect,
+        message: message,
       });
     } else if (game.mode == "301") {
       modeSelect = new ThreeHundredOne(gameEngine.players);
@@ -187,6 +209,7 @@ router.get("/:id", async (req, res) => {
         players: playersIds,
         gameEngine: gameEngine,
         modeSelect: modeSelect,
+        message: message,
       });
     }
 
@@ -437,24 +460,56 @@ router.post("/:id/shots", async (req, res) => {
     playerId: playerId,
   });
 
-  const score = gamePlayer.score + 1
+  const score = gamePlayer.score + 1;
 
   var check = gameEngine.shoot(secteur, score);
 
   console.log("CHECK=" + check);
 
-  const gameP = await GamePlayer.find({ gameId: req.params.id });
+  const gameP = await GamePlayer.find({ gameId: req.params.id, inGame: true });
+
+  const winner = await GamePlayer.find({
+    gameId: req.params.id,
+    inGame: false,
+  });
+
+  // const p = await GamePlayer.find({ gameId: req.params.id });
+
+  // console.log("GamePlayer= ");
+
+  // p.forEach((Element) => {
+  //   console.log(Element);
+  // })
+  // console.log("GamePlayer");
+
+  // console.log("lol=" +gameP)
+  // if (gameP == "") {
+  //   const gameEnd = await Game.findOneAndUpdate(
+  //     req.params.id,
+  //     { $set: { status: "ended" } },
+  //     { new: true }
+  //   );
+  //   const saveG = gameEnd.save();
+
+  //   res.send({
+  //     message: "Partie Finie !",
+  //   });
+
+  //   //  res.status(200).json({ msg: "Get Games" });
+  //   return res.status(200);
+  // }
 
   playersIds = gameP.map((e) => {
     return e.playerId;
   });
 
-  console.log('ENGINE= '+ gameEngine.players )
+  console.log("ENGINE= " + gameEngine.players);
 
   if (check != false) {
-    console.log(" data!");
+    console.log("data!");
 
     if (gamePlayer.remainingShots > 0) {
+      console.log("nbDart= " + gamePlayer.remainingShots);
       const gameshot = new GameShot({
         gameId: req.params.id,
         playerId: playerId,
@@ -463,22 +518,113 @@ router.post("/:id/shots", async (req, res) => {
       });
 
       const saveShot = await gameshot.save();
-
-      const gameP = await GamePlayer.findOneAndUpdate(
-        { gameId: req.params.id, playerId: playerId },
-        {
-          $set: {
-            score: gamePlayer.score + 1,
-            remainingShots: gamePlayer.remainingShots - 1,
+      //&& mode == "around-the-word"
+      if (gamePlayer.score + 1 == 20) {
+        const gameP = await GamePlayer.findOneAndUpdate(
+          { gameId: req.params.id, playerId: playerId },
+          {
+            $set: {
+              score: gamePlayer.score + 1,
+              remainingShots: gamePlayer.remainingShots - 1,
+            },
           },
-        },
-        {
-          new: true,
+          {
+            new: true,
+          }
+        );
+
+        var max = 1;
+
+        const maxRank = await GamePlayer.aggregate(
+          [
+            { $match: { gameId: req.params.id } },
+            { $group: { _id: null, MaxR: { $max: "$rank" } } },
+          ],
+          function (e, bigData) {
+            console.log("Max= " + bigData[0].MaxR);
+
+            if (bigData[0].MaxR != undefined) {
+              max = bigData[0].MaxR;
+            }
+          }
+        );
+
+        console.log("MaxRank= " + max);
+
+        const gamegP = await GamePlayer.findOneAndUpdate(
+          { gameId: req.params.id, playerId: playerId },
+          {
+            $set: {
+              inGame: false,
+              rank: max,
+            },
+          },
+          {
+            new: true,
+          }
+        );
+
+        var id = null;
+        var check = false;
+
+        playersIds.forEach((e) => {
+          if (check == true) {
+            id = e;
+          }
+          if (e == playerId) {
+            check = true;
+          }
+        });
+
+        if (id == null) {
+          id = playersIds[0];
         }
-      );
+
+        console.log("ID new= " + id);
+
+        const updGamecurrentId = await Game.findByIdAndUpdate(
+          req.params.id,
+          { $set: { currentPlayerId: id } },
+          { new: true }
+        );
+        const save = updGamecurrentId.save();
+
+        const updPlayer = await GamePlayer.findByIdAndUpdate(
+          gamePlayer.id,
+          { $set: { remainingShots: 3 } },
+          { new: true }
+        );
+
+        const saveP = updPlayer.save();
+
+        const playerWin = await Player.findById(playerId);
+
+        message = `Le joueurs ${playerWin.name} à gagné ! Bien joué !`;
+
+        res.send({
+          message: message,
+        });
+
+        //  res.status(200).json({ msg: "Get Games" });
+        return res.status(200);
+      } else {
+        const gameP = await GamePlayer.findOneAndUpdate(
+          { gameId: req.params.id, playerId: playerId },
+          {
+            $set: {
+              score: gamePlayer.score + 1,
+              remainingShots: gamePlayer.remainingShots - 1,
+            },
+          },
+          {
+            new: true,
+          }
+        );
+      }
+
       message = "CIBLE TOUCHE";
 
-      console.log('PlayerIDS= ' +playersIds)
+      console.log("PlayerIDS= " + playersIds);
 
       if (gamePlayer.remainingShots == 1) {
         message = "TOUCHE NEXT";
@@ -492,23 +638,28 @@ router.post("/:id/shots", async (req, res) => {
           if (e == playerId) {
             check = true;
           }
-
         });
 
         if (id == null) {
-          id = playerIds[0]
+          id = playersIds[0];
         }
 
-      console.log('ID new= ' +id)
+        console.log("ID new= " + id);
 
+        const updGamecurrentId = await Game.findByIdAndUpdate(
+          req.params.id,
+          { $set: { currentPlayerId: id } },
+          { new: true }
+        );
+        const save = updGamecurrentId.save();
 
-      const updGamecurrentId = await Game.findByIdAndUpdate(
-        req.params.id,
-        { $set: { currentPlayerId: id } },
-        { new: true }
-      );
-      const save = updGamecurrentId.save();
+        const updPlayer = await GamePlayer.findByIdAndUpdate(
+          gamePlayer.id,
+          { $set: { remainingShots: 3 } },
+          { new: true }
+        );
 
+        const saveP = updPlayer.save();
       }
     } else {
       var message = "Vous n'avez plus de fleches";
@@ -519,14 +670,13 @@ router.post("/:id/shots", async (req, res) => {
     }
 
     console.log(" data!");
-
   } else {
     const gamePlayer = await GamePlayer.findOne({
       gameId: req.params.id,
       playerId: playerId,
     });
 
-    if (gamePlayer.remainingShots > 1) {
+    if (gamePlayer.remainingShots > 0) {
       const gameshot = new GameShot({
         gameId: req.params.id,
         playerId: playerId,
@@ -548,6 +698,43 @@ router.post("/:id/shots", async (req, res) => {
         }
       );
       message = "CIBLE RATE";
+
+      if (gamePlayer.remainingShots == 1) {
+        message = "RATE NEXT";
+
+        var id = null;
+        var check = false;
+
+        playersIds.forEach((e) => {
+          if (check == true) {
+            id = e;
+          }
+          if (e == playerId) {
+            check = true;
+          }
+        });
+
+        if (id == null) {
+          id = playersIds[0];
+        }
+
+        console.log("ID new= " + id);
+
+        const updGamecurrentId = await Game.findByIdAndUpdate(
+          req.params.id,
+          { $set: { currentPlayerId: id } },
+          { new: true }
+        );
+        const save = updGamecurrentId.save();
+
+        const updPlayer = await GamePlayer.findByIdAndUpdate(
+          gamePlayer.id,
+          { $set: { remainingShots: 3 } },
+          { new: true }
+        );
+
+        const saveP = updPlayer.save();
+      }
     } else {
       var message = "Vous n'avez plus de fleches";
     }
@@ -563,6 +750,7 @@ router.post("/:id/shots", async (req, res) => {
 
   //  res.status(200).json({ msg: "Get Games" });
   return res.status(200);
+  // res.redirect(303, `/games/${req.params.id}`);
 });
 
 /**
