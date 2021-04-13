@@ -1,16 +1,21 @@
 <%- include('header') %>
 
 <div class="container mx-auto">
-	<h1 class="text-5xl">Games</h1>
-	<ul>
+	<h1 class="text-5xl mb-4">Games</h1>
+	<div class="mb-4">
+		<a href="http://localhost:5000/games/new">
+			<button class="delete-btn btn btn-success">Ajouter</button>
+		</a>
+	</div>
+	<ul class="list-group">
 		<% for (const game of games) { %>
-		<li class="flex justify-between">
+		<li class="flex justify-between mb-4">
 			<%= game.name %>
 			<div>
-				<button class="info-game-btn">
-					<a href="<%= "http://localhost:5000/games/" + game._id + "/edit" %>">Editer</a>
+				<button class="info-game-btn btn btn-info">
+					<a style="text-decoration: none;" href="<%= "http://localhost:5000/games/" + game._id + "/edit" %>">Editer</a>
 				</button>
-				<button class="delete-btn" data-id="<%=game._id%>">Supprimer</button>
+				<button class="delete-btn btn btn-danger" data-id="<%=game._id%>">Supprimer</button>
 			</div>
 		</li>
 		<% } %>

@@ -282,12 +282,19 @@ router.patch("/:id", async (req, res) => {
     let playerGame = [];
     let index = 1;
 
+    let scoreGp = 0;
+
+    if (game.mode == "301") {
+      scoreGp = 301
+    }
+
+
     players.map(async (e) => {
       const newGameP = new GamePlayer({
         playerId: e,
         gameId: req.params.id,
         remainingShots: 3,
-        score: 0,
+        score: scoreGp,
         rank: null,
         order: index,
         inGame: true,
@@ -453,14 +460,20 @@ router.delete("/:id/players", (req, res) => {
  */
 router.post("/:id/shots", async (req, res) => {
   //req.params.id
-  const { playerId, secteur } = req.body;
+  const { playerId, secteur, multiplicateur } = req.body;
 
   const gamePlayer = await GamePlayer.findOne({
     gameId: req.params.id,
     playerId: playerId,
   });
 
+  const game = await Game.find(req.params.id);
+
   const score = gamePlayer.score + 1;
+
+  if (game.mode == "301") {
+    score = gamePlayer.score + ( 1 * multiplicateur )
+  }
 
   var check = gameEngine.shoot(secteur, score);
 

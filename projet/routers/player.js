@@ -40,7 +40,9 @@ router.post('/', async (req, res) => {
 			return res.status(201).json(player);
 		}
 
-		res.redirect(`http://localhost:5000/players/${player._id}`);
+		res.redirect(303, `/players/${player._id}`);
+
+		return res.status(200);
 	} catch (err) {
 		console.error(err.message);
 		res
@@ -56,7 +58,9 @@ router.post('/', async (req, res) => {
  * @access		Public
  */
 router.get('/new', (req, res) => {
-	res.status(406).json({ msg: 'NOT_API_AVAILABLE' });
+
+	res.render("playersNew");
+	return res.status(200);
 });
 
 /**

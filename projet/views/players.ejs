@@ -1,20 +1,30 @@
 <%- include('header') %>
 
 <div class="container mx-auto">
-	<h1 class="text-5xl">Players</h1>
-	<ul>
-		<% for (const player of players) { %>
-		<li class="flex justify-between">
-			<%= player.name %>
-			<div>
-				<button class="info-player-btn">
-					<a href="<%= "http://localhost:5000/players/" + player._id %>">Editer</a>
-				</button>
-				<button class="delete-btn" data-id="<%=player._id%>">Supprimer</button>
-			</div>
-		</li>
-		<% } %>
-	</ul>
+	<h1 class="text-5xl mb-4">Players</h1>
+	<div class="mb-4">
+		<a href="http://localhost:5000/players/new">
+			<button class="delete-btn btn btn-success">Ajouter</button>
+		</a>
+	</div>
+	
+	<div>
+		<ul class="list-group">
+			<% for (const player of players) { %>
+			<li class="flex justify-between mb-4 ">
+				<%= player.name %>
+				<div>
+					<button class="info-player-btn btn btn-info">
+						<a style="text-decoration: none;" href="<%= "http://localhost:5000/players/" + player._id %>">Editer</a>
+					</button>
+					<button class="delete-btn btn btn-danger" data-id="<%=player._id%>">Supprimer</button>
+				</div>
+			</li>
+			<% } %>
+		</ul>
+
+	</div>
+
 
 	<script>
 		document.addEventListener('DOMContentLoaded', e => {
