@@ -2,6 +2,7 @@ const path = require('path');
 const express = require('express');
 const dotenv = require('dotenv');
 const connectDB = require('./db');
+// const redis = require('redis');
 
 // Load env vars
 dotenv.config({ path: './config/config.env' });

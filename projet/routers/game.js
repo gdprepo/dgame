@@ -467,7 +467,7 @@ router.post("/:id/shots", async (req, res) => {
     playerId: playerId,
   });
 
-  const game = await Game.find(req.params.id);
+  const game = await Game.findById(req.params.id);
 
   const score = gamePlayer.score + 1;
 
@@ -485,32 +485,6 @@ router.post("/:id/shots", async (req, res) => {
     gameId: req.params.id,
     inGame: false,
   });
-
-  // const p = await GamePlayer.find({ gameId: req.params.id });
-
-  // console.log("GamePlayer= ");
-
-  // p.forEach((Element) => {
-  //   console.log(Element);
-  // })
-  // console.log("GamePlayer");
-
-  // console.log("lol=" +gameP)
-  // if (gameP == "") {
-  //   const gameEnd = await Game.findOneAndUpdate(
-  //     req.params.id,
-  //     { $set: { status: "ended" } },
-  //     { new: true }
-  //   );
-  //   const saveG = gameEnd.save();
-
-  //   res.send({
-  //     message: "Partie Finie !",
-  //   });
-
-  //   //  res.status(200).json({ msg: "Get Games" });
-  //   return res.status(200);
-  // }
 
   playersIds = gameP.map((e) => {
     return e.playerId;
