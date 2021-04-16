@@ -31,8 +31,6 @@
 			<input type="hidden" name="<%= game.id %>" id="gameId">
 	
 			<div class="shots">Vous avez <%= gameplayer[0].remainingShots %> essais</div>
-	
-
 
 		<% } %>
 
@@ -129,21 +127,11 @@
 			$('.shots').html("Vous avez "+ shots +" essais")
 			$('.score').html("Il a un score de "+ score)
 
+			if (playerName == null) {
+				window.location.href = `http://localhost:5000/games/${gameId}`;
+			}
 			
 
-
-			let cible = 0;
-			sector.forEach((e) => {
-
-				if (cible == parseInt(score)) {
-					e.classList.add('select')
-				}
-
-				cible++
-
-
-			})
-		
 			sector.forEach((e) => {
 				e.addEventListener('click', async (element) => {
 
@@ -160,15 +148,22 @@
 
 						//window.location.href = `http://localhost:5000/games/${gameId}`;
 
-						if (data.data.message != null) {
+						if (data.data.message != null && data.data.retry == null) {
 							var new_row = document.createElement('div');
 							new_row.className = "alert alert-success";
 							new_row.innerHTML = data.data.message
 							var element = document.getElementById("alert");
 							element.appendChild(new_row);
 							setTimeout(function(){location.reload()}, 3000);
+						} else if (data.data.retry != null) {
+							var new_row = document.createElement('div');
+							new_row.className = "alert alert-danger";
+							new_row.innerHTML = data.data.retry
+							var element = document.getElementById("alert");
+							element.appendChild(new_row);
+							setTimeout(function(){location.reload()}, 3000);
 						} else {
-							
+
 						}
 
 						console.log('LOURD')

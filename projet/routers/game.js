@@ -205,7 +205,7 @@ router.get("/:id", async (req, res) => {
       });
     } else if (game.mode == "301") {
       modeSelect = new ThreeHundredOne(gameEngine.players);
-      
+
       res.render("game301.ejs", {
         game: game,
         gameplayer: gameplayer,
@@ -499,6 +499,7 @@ router.post("/:id/shots", async (req, res) => {
     if (gamePlayer.remainingShots > 0) {
 
       var mult = 1
+      var retry = null
 
       if (game.mode == "301") (
         mult = multiplicateur
@@ -513,6 +514,7 @@ router.post("/:id/shots", async (req, res) => {
       });
 
       const saveShot = await gameshot.save();
+
       //&& mode == "around-the-word"
 
       if (gamePlayer.score - ( multiplicateur * secteur ) == 0 && game.mode == "301") {
@@ -540,8 +542,8 @@ router.post("/:id/shots", async (req, res) => {
           function (e, bigData) {
             console.log("Max= " + bigData[0].MaxR);
 
-            if (bigData[0].MaxR != undefined) {
-              max = bigData[0].MaxR;
+            if (bigData[0].MaxR != undefined && bigData[0].MaxR != null) {
+              max = bigData[0].MaxR + 1;
             }
           }
         );
@@ -596,7 +598,18 @@ router.post("/:id/shots", async (req, res) => {
 
         const playerWin = await Player.findById(playerId);
 
-        message = `Le joueurs ${playerWin.name} à gagné ! Bien joué !`;
+        const winnerCheck = await GamePlayer.find({
+          gameId: req.params.id,
+          rank: 1,
+        });
+
+        if (winnerCheck) {
+          message = `Le joueur ${playerWin.name} à finit !`;
+
+        } else {
+          message = `Le joueur ${playerWin.name} à gagné ! Bien joué !`;
+        }
+
 
         res.send({
           message: message,
@@ -620,6 +633,20 @@ router.post("/:id/shots", async (req, res) => {
           }
         );
 
+      } else if (gamePlayer.score - ( multiplicateur * secteur ) < 0 && game.mode == "301") {
+        const gameP = await GamePlayer.findOneAndUpdate(
+          { gameId: req.params.id, playerId: playerId },
+          {
+            $set: {
+              remainingShots: gamePlayer.remainingShots - 1,
+            },
+          },
+          {
+            new: true,
+          }
+        );
+
+        retry = "Try Again ! Il faut finir sur 0 !"
       }
 
       if (gamePlayer.score + 1 == 20 && game.mode != "301") {
@@ -646,8 +673,8 @@ router.post("/:id/shots", async (req, res) => {
           function (e, bigData) {
             console.log("Max= " + bigData[0].MaxR);
 
-            if (bigData[0].MaxR != undefined) {
-              max = bigData[0].MaxR;
+            if (bigData[0].MaxR != undefined && bigData[0].MaxR != null) {
+              max = bigData[0].MaxR + 1;
             }
           }
         );
@@ -702,10 +729,13 @@ router.post("/:id/shots", async (req, res) => {
 
         const playerWin = await Player.findById(playerId);
 
+
         message = `Le joueurs ${playerWin.name} à gagné ! Bien joué !`;
+
 
         res.send({
           message: message,
+          retry: retry
         });
 
         //  res.status(200).json({ msg: "Get Games" });
@@ -724,6 +754,7 @@ router.post("/:id/shots", async (req, res) => {
           }
         );
       }
+
 
       if (game.mode != "301") {
         message = "CIBLE TOUCHE";
@@ -857,6 +888,7 @@ router.post("/:id/shots", async (req, res) => {
 
   res.send({
     message: message,
+    retry: retry
   });
 
   //  res.status(200).json({ msg: "Get Games" });
