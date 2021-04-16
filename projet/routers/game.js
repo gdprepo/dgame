@@ -68,9 +68,6 @@ router.post("/", async (req, res) => {
     });
 
     const game = await newGame.save();
-    console.log(" OKOK");
-    console.log(game);
-    console.log(" OKOK");
 
     res.status(201).json({ game: game._id });
     // res.patch(`/${game._id}`)
@@ -266,9 +263,6 @@ router.patch("/:id", async (req, res) => {
     if (name) updateFields.name = name;
     if (mode) updateFields.mode = mode;
     if (status) updateFields.status = status;
-    // if (players) updateFields.players = players;
-
-    // updateFields.players = players;
 
     let game = await Game.findById({ _id: req.params.id });
 
@@ -349,30 +343,6 @@ router.patch("/:id", async (req, res) => {
 
     return res.status(200);
 
-    // let index = 0;
-    // gameEngine.players.( async (e) => {
-    //   console.log(e.createdAt);
-
-    //   const newGameP = new GamePlayer({
-    //     playerId: e._id,
-    //     gameId: game._id,
-    //     remainingShots: 3,
-    //     score: 0,
-    //     rank: index,
-    //     order: 0,
-    //     inGame: true,
-    //   });
-
-    //   const gameP = await newGameP.save().then(() => {
-    // 	console.log("okok");
-    //   }).catch((error) => {
-    // 	  console.log("error")
-    //   })
-
-    //   index++;
-    // });
-
-    // res.status(200).json({ game });
   } catch (err) {
     console.error(err.message);
     res.send("Server Error...");

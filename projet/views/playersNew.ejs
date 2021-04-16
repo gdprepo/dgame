@@ -6,7 +6,8 @@
 		<div style="display:grid; width: 30%" class="mx-auto">
 
 			<div class="input-group mb-3">
-				<input type="text" class="form-control" id="name" name="name" placeholder="Entrer un nom de l'utilisateur">
+				<input type="text" class="form-control" id="name" name="name"
+					placeholder="Entrer un nom de l'utilisateur">
 			</div>
 
 
@@ -36,7 +37,7 @@
 						email: document.getElementById('email').value,
 					});
 
-					//window.location.href = `http://localhost:5000/games/${request.data.game}`;
+					window.location.href = `http://localhost:5000/players/${request.data.id}`;
 				} catch (err) {
 					console.error(err.message);
 				}

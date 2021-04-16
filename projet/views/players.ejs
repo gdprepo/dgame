@@ -1,7 +1,7 @@
 <%- include('header') %>
 
 <div class="container mx-auto">
-	<h1 class="text-5xl mb-4">Players</h1>
+	<h1 style="font-weight: 800; letter-spacing: 10px; text-align:center" class="mb-4 mt-4 ml-4 ">PLAYERS</h1>
 	<div class="mb-4">
 		<a href="http://localhost:5000/players/new">
 			<button class="delete-btn btn btn-success">Ajouter</button>
@@ -11,13 +11,13 @@
 	<div>
 		<ul class="list-group">
 			<% for (const player of players) { %>
-			<li class="flex justify-between mb-4 ">
-				<%= player.name %>
+			<li style="background-color: rgba(0, 55, 255, 0.478); padding: 16px; border-radius: 5px" class="flex justify-between mb-4 ">
+				<%= player.name %> <strong><%= player.email %> </strong>
 				<div>
 					<button class="info-player-btn btn btn-info">
-						<a style="text-decoration: none;" href="<%= "http://localhost:5000/players/" + player._id %>">Editer</a>
+						<a style="text-decoration: none;" href="<%= "http://localhost:5000/players/" + player.id %>">Editer</a>
 					</button>
-					<button class="delete-btn btn btn-danger" data-id="<%=player._id%>">Supprimer</button>
+					<button class="delete-btn btn btn-danger" data-id="<%=player.id%>">Supprimer</button>
 				</div>
 			</li>
 			<% } %>

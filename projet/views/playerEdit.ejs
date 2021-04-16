@@ -1,20 +1,28 @@
 <%- include('header') %>
 
 <div class="container mx-auto">
-	<form id="player-edit-form" data-id="<%= player._id %>">
-		<label for="name">Name</label>
-		<input type="text" name="name" id="name" placeholder="<%= player.name %>" />
+	<h1 style="font-weight: 800; letter-spacing: 8px; text-align:center" class="mb-4 mt-4 ml-4 ">Modifier Player</h1>
 
-		<label for="email">Email</label>
-		<input
-			type="email"
-			name="email"
-			id="email"
-			placeholder="<%= player.email %>"
-		/>
+	<div class="mx-auto mb-4" style="width: 40%;">
+		<form id="player-edit-form" data-id="<%= player._id %>">
+			<label for="name">Name</label>
+			<input type="text" class="form-control"  name="name" id="name" placeholder="<%= player.name %>" />
+	
+			<label class="mt-4" for="email">Email</label>
+			<input class="form-control" 
+				type="email"
+				name="email"
+				id="email"
+				placeholder="<%= player.email %>"
+			/>
+			
+			<div style="text-align: center;"> 
+				<button type="submit" class="btn btn-success mt-4" style="padding-left: 16px;padding-right: 16px; width: 20%" value="Submit">Valider</button>
+			</div>
+		</form>
 
-		<input type="submit" value="Submit" />
-	</form>
+	</div>
+
 </div>
 
 <script>

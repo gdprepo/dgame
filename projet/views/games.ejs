@@ -1,19 +1,36 @@
 <%- include('header') %>
 
 <div class="container mx-auto">
-	<h1 class="text-5xl mb-4">Games</h1>
+	<h1 style="font-weight: 800; letter-spacing: 10px; text-align:center" class="mb-4 mt-4 ml-4 ">Games</h1>
 	<div class="mb-4">
 		<a href="http://localhost:5000/games/new">
 			<button class="delete-btn btn btn-success">Ajouter</button>
 		</a>
 	</div>
-	<ul class="list-group">
+	<ul style="width: 80%;" class="list-group mx-auto">
 		<% for (const game of games) { %>
-		<li class="flex justify-between mb-4">
-			<%= game.name %>
+			<% if (game.status == "ended") { %>
+				<li style="background-color: rgba(255, 0, 0, 0.478); padding: 16px; border-radius: 5px" class="flex justify-between mb-4">
+
+			<% } else { %>
+				<li style="background-color: rgba(37, 248, 0, 0.601); padding: 16px; border-radius: 5px" class="flex justify-between mb-4">
+
+			<% } %>
+			<%= game.name %> <strong><%= game.mode %></strong>
 			<div>
+				<% if (game.status != "ended") { %>
+					<button style="background-color: rgb(0, 248, 33);" class="info-game-btn btn">
+						<a style="text-decoration: none; color: rgba(0, 0, 0, 0.533)" href="<%= "http://localhost:5000/games/" + game._id + "/" %>">Jouer</a>
+					</button>
+				<% } else { %>
+					<button style="background-color: rgb(255, 0, 0)" class="info-game-btn btn">
+						<a style="text-decoration: none; color: rgba(0, 0, 0, 0.533)" href="<%= "http://localhost:5000/games/" + game._id + "" %>">Voir les resultats</a>
+					</button>	
+					
+				<% } %>
+
 				<button class="info-game-btn btn btn-info">
-					<a style="text-decoration: none;" href="<%= "http://localhost:5000/games/" + game._id + "/edit" %>">Editer</a>
+					<a style="text-decoration: none; color: white" href="<%= "http://localhost:5000/games/" + game._id + "/edit" %>">Editer</a>
 				</button>
 				<button class="delete-btn btn btn-danger" data-id="<%=game._id%>">Supprimer</button>
 			</div>

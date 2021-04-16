@@ -36,11 +36,15 @@ router.post('/', async (req, res) => {
 
 		const player = await newPlayer.save();
 
+		res.send({
+			id: player._id,
+		});
+
 		if (req.header('Accept').includes('application/json')) {
 			return res.status(201).json(player);
 		}
 
-		res.redirect(303, `/players/${player._id}`);
+
 
 		return res.status(200);
 	} catch (err) {

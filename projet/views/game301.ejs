@@ -50,16 +50,14 @@
 
 							</li>
 
-							<% } else { %>
-								<li style="text-align: center;" id="<%= players[i] %>"
-									class="list-group-item player_list user_<%= i %>">
-									<%= game.players[i] %>
-								</li>
+						<% } else { %>
+							<li style="text-align: center;" id="<%= players[i] %>"
+								class="list-group-item player_list user_<%= i %>">
+								<%= game.players[i] %>
+							</li>
 
-								<% } %>
-
-
-									<% }; %>
+						<% } %>
+					<% } %>
 				</ul>
 
 			</div>
