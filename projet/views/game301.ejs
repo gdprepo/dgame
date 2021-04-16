@@ -15,15 +15,30 @@
 		</h3>
 		<p>status: <%= game.status %>
 		</p>
-		<p>C'est à <strong id="name">
+
+		<% if (message) { %>
+			<div class="alert alert-danger" role="alert">
+				<%= message %>
+			</div>
+		<% } else { %>
+			<div class="name">
 				<%= game.players[0] %>
-			</strong> de jouer ! Il a un score de <strong id="score">
-				<%= gameplayer[0].score %>
-			</strong></p>
-		<input type="hidden" name="<%= game.id %>" id="gameId">
-		<p>
-			<strong>Vous avez <%= gameplayer[0].remainingShots %> essaies</strong>
-		</p>
+	
+			</div>
+			<div class="score">
+				Il a un score de <%= gameplayer[0].score %>
+			</div>
+			<input type="hidden" name="<%= game.id %>" id="gameId">
+	
+			<div class="shots">Vous avez <%= gameplayer[0].remainingShots %> essais</div>
+	
+
+
+		<% } %>
+
+		<div id="alert">
+
+		</div>
 		<div class="row">
 			<div class="col-3">
 				<ul class="list-group">
@@ -33,6 +48,8 @@
 							<li style="text-align: center;" id="<%= players[i] %>"
 								class="select list-group-item player_list user_<%= i %>">
 								<%= game.players[i] %>
+								<input type="hidden" class="index" name="<%= i %>">
+
 							</li>
 
 							<% } else { %>
@@ -112,6 +129,7 @@
 			$('.shots').html("Vous avez "+ shots +" essais")
 			$('.score').html("Il a un score de "+ score)
 
+			
 
 
 			let cible = 0;
