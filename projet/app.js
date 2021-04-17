@@ -2,7 +2,7 @@ const path = require('path');
 const express = require('express');
 const dotenv = require('dotenv');
 const connectDB = require('./db');
-const redis = require('redis');
+const redis = require('./redis-client');
 
 // Load env vars
 dotenv.config({ path: './config/config.env' });
@@ -26,6 +26,8 @@ const app = express();
 app.use(express.json({ extended: false }));
 
 app.set('view engine', 'ejs');
+
+
 
 
 
@@ -53,12 +55,14 @@ app.get('/', (req, res) => {
 	}
 });
 
-// Define Routes
-app.use("/", require("./router"));
-
 const PORT = process.env.PORT || 5000;
 // const REDIS_PORT = process.env.PORT || 6379;
 
-// const client = redis.createClient(REDIS_PORT)
+// const client = redis.createClient()
+
+// Define Routes
+app.use("/", require("./router"));
+
+
 
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));

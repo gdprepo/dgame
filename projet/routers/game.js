@@ -1,6 +1,7 @@
 const express = require("express");
 const Game = require("../models/Game");
 var mongo = require("mongodb");
+const client = require("./../redis-client");
 
 const advancedResults = require("../middleware/advancedResults");
 const GamePlayer = require("../models/GamePlayer");
@@ -86,16 +87,14 @@ router.get("/:id", async (req, res) => {
   try {
     const gameplayer = await GamePlayer.find({ gameId: req.params.id });
 
-    // const data = await gameplayer.json();
-
-    // const repos = data.public_repos;
-
-    // client.setex(req.params.id, 3600, repos)
+    // client.setex(req.params.id, 3600, JSON.stringify(gameplayer))
 
     const gameP = await GamePlayer.find({
       gameId: req.params.id,
       inGame: true,
     });
+
+    var check = false;
 
     if (gameP == "") {
       const gameEnd = await Game.findOneAndUpdate(
@@ -112,6 +111,12 @@ router.get("/:id", async (req, res) => {
       const winner = await Player.findById(winnerGp[0].playerId);
 
       var message = `Partie Finie ! Le Gagnant est ${winner.name}`;
+
+      client.flushdb(function (err, succeeded) {
+        console.log(succeeded); // will be true if successfull
+      });
+
+      check = true;
     }
 
     const game = await Game.findById(req.params.id);
@@ -122,13 +127,11 @@ router.get("/:id", async (req, res) => {
 
       var playersIds = [];
 
-      console.log("coucou");
       gameplayer.forEach(async (gplayer) => {
         const p = await Player.findById(gplayer.playerId);
         var name = p.name;
         playersIds.push(p._id.toString());
       });
-
     }
 
     if (!game)
@@ -143,12 +146,27 @@ router.get("/:id", async (req, res) => {
 
     if (game.players != []) {
       gameEngine = new GameEngine(game.players);
-
     }
 
     playersIds = gameplayer.map((e) => {
       return e.playerId;
     });
+
+    if (check == false) {
+      var redisKey = "game:data";
+      // console.log(game);
+
+      client.setex(redisKey, 3600, JSON.stringify(game));
+
+      redisKey = "playersIds:data";
+      // console.log(game);
+
+      client.setex(redisKey, 600, JSON.stringify(playersIds));
+
+      redisKey = "gameEngine:data";
+
+      client.setex(redisKey, 600, JSON.stringify(gameEngine));
+    }
 
     if (game.mode == "around-the-world") {
       modeSelect = new AroundTheWorld(gameEngine.players);
@@ -276,11 +294,6 @@ router.patch("/:id", async (req, res) => {
       var o_id = new mongo.ObjectID(e);
 
       let player = await Player.findById(o_id);
-      console.log("player");
-
-      console.log(player);
-      console.log("player");
-
       playerGame.push(player);
     });
 
@@ -290,12 +303,10 @@ router.patch("/:id", async (req, res) => {
       var list = gameEngine.randomize(game._id);
 
       const promise1 = Promise.resolve(list);
-      console.log(promise1 + "LIST");
-
       var firstId = null;
       var index2 = 0;
+      
       promise1.then(async (value) => {
-        console.log(value + "LIST");
         // expected output: 123
         if (index2 == 0) {
           firstId = value.toString();
@@ -316,7 +327,6 @@ router.patch("/:id", async (req, res) => {
     });
 
     return res.status(200);
-
   } catch (err) {
     console.error(err.message);
     res.send("Server Error...");
@@ -422,8 +432,6 @@ router.post("/:id/shots", async (req, res) => {
     check = gameEngine.shoot(secteur, score);
   }
 
-  console.log("CHECK=" + check);
-
   const gameP = await GamePlayer.find({ gameId: req.params.id, inGame: true });
 
   const winner = await GamePlayer.find({
@@ -435,21 +443,14 @@ router.post("/:id/shots", async (req, res) => {
     return e.playerId;
   });
 
-  console.log("ENGINE= " + gameEngine.players);
-
   if (check != false || game.mode == "301") {
-    console.log("data!");
 
     if (gamePlayer.remainingShots > 0) {
+      var mult = 1;
+      var retry = null;
 
-      var mult = 1
-      var retry = null
+      if (game.mode == "301") mult = multiplicateur;
 
-      if (game.mode == "301") (
-        mult = multiplicateur
-      )
-
-      console.log("nbDart= " + gamePlayer.remainingShots);
       const gameshot = new GameShot({
         gameId: req.params.id,
         playerId: playerId,
@@ -461,12 +462,15 @@ router.post("/:id/shots", async (req, res) => {
 
       //&& mode == "around-the-word"
 
-      if (gamePlayer.score - ( multiplicateur * secteur ) == 0 && game.mode == "301") {
+      if (
+        gamePlayer.score - multiplicateur * secteur == 0 &&
+        game.mode == "301"
+      ) {
         const gameP = await GamePlayer.findOneAndUpdate(
           { gameId: req.params.id, playerId: playerId },
           {
             $set: {
-              score: gamePlayer.score - ( multiplicateur * secteur ) ,
+              score: gamePlayer.score - multiplicateur * secteur,
               remainingShots: gamePlayer.remainingShots - 1,
             },
           },
@@ -474,7 +478,6 @@ router.post("/:id/shots", async (req, res) => {
             new: true,
           }
         );
-
 
         var max = 1;
 
@@ -484,15 +487,11 @@ router.post("/:id/shots", async (req, res) => {
             { $group: { _id: null, MaxR: { $max: "$rank" } } },
           ],
           function (e, bigData) {
-            console.log("Max= " + bigData[0].MaxR);
-
             if (bigData[0].MaxR != undefined && bigData[0].MaxR != null) {
               max = bigData[0].MaxR + 1;
             }
           }
         );
-
-        console.log("MaxRank= " + max);
 
         const gamegP = await GamePlayer.findOneAndUpdate(
           { gameId: req.params.id, playerId: playerId },
@@ -522,8 +521,6 @@ router.post("/:id/shots", async (req, res) => {
         if (id == null) {
           id = playersIds[0];
         }
-
-        console.log("ID new= " + id);
 
         const updGamecurrentId = await Game.findByIdAndUpdate(
           req.params.id,
@@ -549,11 +546,9 @@ router.post("/:id/shots", async (req, res) => {
 
         if (winnerCheck) {
           message = `Le joueur ${playerWin.name} à finit !`;
-
         } else {
           message = `Le joueur ${playerWin.name} à gagné ! Bien joué !`;
         }
-
 
         res.send({
           message: message,
@@ -561,14 +556,30 @@ router.post("/:id/shots", async (req, res) => {
 
         //  res.status(200).json({ msg: "Get Games" });
         return res.status(200);
-
-      } else if (gamePlayer.score - ( multiplicateur * secteur ) > 0 && game.mode == "301") {
-        console.log('OKEYYYYYY')
+      } else if (
+        gamePlayer.score - multiplicateur * secteur > 0 &&
+        game.mode == "301"
+      ) {
         const gameP = await GamePlayer.findOneAndUpdate(
           { gameId: req.params.id, playerId: playerId },
           {
             $set: {
-              score: gamePlayer.score - ( multiplicateur * secteur ),
+              score: gamePlayer.score - multiplicateur * secteur,
+              remainingShots: gamePlayer.remainingShots - 1,
+            },
+          },
+          {
+            new: true,
+          }
+        );
+      } else if (
+        gamePlayer.score - multiplicateur * secteur < 0 &&
+        game.mode == "301"
+      ) {
+        const gameP = await GamePlayer.findOneAndUpdate(
+          { gameId: req.params.id, playerId: playerId },
+          {
+            $set: {
               remainingShots: gamePlayer.remainingShots - 1,
             },
           },
@@ -577,20 +588,7 @@ router.post("/:id/shots", async (req, res) => {
           }
         );
 
-      } else if (gamePlayer.score - ( multiplicateur * secteur ) < 0 && game.mode == "301") {
-        const gameP = await GamePlayer.findOneAndUpdate(
-          { gameId: req.params.id, playerId: playerId },
-          {
-            $set: {
-              remainingShots: gamePlayer.remainingShots - 1,
-            },
-          },
-          {
-            new: true,
-          }
-        );
-
-        retry = "Try Again ! Il faut finir sur 0 !"
+        retry = "Try Again ! Il faut finir sur 0 !";
       }
 
       if (gamePlayer.score + 1 == 20 && game.mode != "301") {
@@ -615,15 +613,11 @@ router.post("/:id/shots", async (req, res) => {
             { $group: { _id: null, MaxR: { $max: "$rank" } } },
           ],
           function (e, bigData) {
-            console.log("Max= " + bigData[0].MaxR);
-
             if (bigData[0].MaxR != undefined && bigData[0].MaxR != null) {
               max = bigData[0].MaxR + 1;
             }
           }
         );
-
-        console.log("MaxRank= " + max);
 
         const gamegP = await GamePlayer.findOneAndUpdate(
           { gameId: req.params.id, playerId: playerId },
@@ -654,8 +648,6 @@ router.post("/:id/shots", async (req, res) => {
           id = playersIds[0];
         }
 
-        console.log("ID new= " + id);
-
         const updGamecurrentId = await Game.findByIdAndUpdate(
           req.params.id,
           { $set: { currentPlayerId: id } },
@@ -673,13 +665,11 @@ router.post("/:id/shots", async (req, res) => {
 
         const playerWin = await Player.findById(playerId);
 
-
         message = `Le joueurs ${playerWin.name} à gagné ! Bien joué !`;
-
 
         res.send({
           message: message,
-          retry: retry
+          retry: retry,
         });
 
         //  res.status(200).json({ msg: "Get Games" });
@@ -699,14 +689,11 @@ router.post("/:id/shots", async (req, res) => {
         );
       }
 
-
       if (game.mode != "301") {
         message = "CIBLE TOUCHE";
       } else {
         message = "SHOOT";
       }
-
-      console.log("PlayerIDS= " + playersIds);
 
       if (gamePlayer.remainingShots == 1) {
         if (game.mode != "301") {
@@ -729,8 +716,6 @@ router.post("/:id/shots", async (req, res) => {
         if (id == null) {
           id = playersIds[0];
         }
-
-        console.log("ID new= " + id);
 
         const updGamecurrentId = await Game.findByIdAndUpdate(
           req.params.id,
@@ -755,7 +740,6 @@ router.post("/:id/shots", async (req, res) => {
       var message = "NEXT";
     }
 
-    console.log(" data!");
   } else {
     const gamePlayer = await GamePlayer.findOne({
       gameId: req.params.id,
@@ -804,8 +788,6 @@ router.post("/:id/shots", async (req, res) => {
           id = playersIds[0];
         }
 
-        console.log("ID new= " + id);
-
         const updGamecurrentId = await Game.findByIdAndUpdate(
           req.params.id,
           { $set: { currentPlayerId: id } },
@@ -832,7 +814,7 @@ router.post("/:id/shots", async (req, res) => {
 
   res.send({
     message: message,
-    retry: retry
+    retry: retry,
   });
 
   //  res.status(200).json({ msg: "Get Games" });
