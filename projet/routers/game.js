@@ -86,6 +86,12 @@ router.get("/:id", async (req, res) => {
   try {
     const gameplayer = await GamePlayer.find({ gameId: req.params.id });
 
+    // const data = await gameplayer.json();
+
+    // const repos = data.public_repos;
+
+    // client.setex(req.params.id, 3600, repos)
+
     const gameP = await GamePlayer.find({
       gameId: req.params.id,
       inGame: true,
@@ -123,7 +129,6 @@ router.get("/:id", async (req, res) => {
         playersIds.push(p._id.toString());
       });
 
-      console.log("coucou");
     }
 
     if (!game)
@@ -139,38 +144,7 @@ router.get("/:id", async (req, res) => {
     if (game.players != []) {
       gameEngine = new GameEngine(game.players);
 
-      // var list = gameEngine.randomize(game._id);
-
-      // const promise1 = Promise.resolve(list);
-      // console.log(promise1 + "LIST");
-
-      // var firstId = null;
-      // var index = 0;
-      // promise1.then(async(value) => {
-      //   console.log(value + "LIST");
-      //   // expected output: 123
-      //   if (index == 0) {
-      //     firstId = value.toString()
-
-      //     const updGamecurrentId = await Game.findByIdAndUpdate(
-      //       req.params.id,
-      //       { $set: { currentPlayerId: firstId } },
-      //       { new: true }
-      //     )
-      //     const save = updGamecurrentId.save();
-
-      //   }
-      //   index++
-      // });
     }
-
-    // RANDOM
-
-    // game.currentPlayerId = gameEngine.players[0].playerId;
-
-    console.log("gameENgine");
-    console.log(game);
-    console.log("gameENgine");
 
     playersIds = gameplayer.map((e) => {
       return e.playerId;
