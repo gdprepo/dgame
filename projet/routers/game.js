@@ -154,12 +154,10 @@ router.get("/:id", async (req, res) => {
 
     if (check == false) {
       var redisKey = "game:data";
-      // console.log(game);
 
       client.setex(redisKey, 3600, JSON.stringify(game));
 
       redisKey = "playersIds:data";
-      // console.log(game);
 
       client.setex(redisKey, 600, JSON.stringify(playersIds));
 
@@ -170,9 +168,7 @@ router.get("/:id", async (req, res) => {
 
     if (game.mode == "around-the-world") {
       modeSelect = new AroundTheWorld(gameEngine.players);
-      // console.log(modeSelect)
-      console.log("mode");
-
+    
       res.render("gameAround.ejs", {
         game: game,
         gameplayer: gameplayer,
