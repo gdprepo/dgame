@@ -8,7 +8,7 @@ Lancer la commande ( à la racine du dossier )
 
 Puis rendez-vous à l'adresse suivante : http://localhost:5000/games
 
-[logo]: https://github.com/wewlr17/dgame/blob/master/projet/screen/game-list.png "Logo Title Text 2"
+![alt text](https://github.com/wewlr17/dgame/blob/master/projet/screen/game-list.png "Logo Title Text 1")
 
 Vous trouverez la liste des parties créées.
 Vous avez la posibilité de creer un nouvelle partie, d'en supprimer ou modifier une.
