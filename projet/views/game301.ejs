@@ -9,7 +9,7 @@
 
 
 	<div class="container mx-auto">
-		<h2 class="text-4xl">Name: <%= game.name %> MODE 301
+		<h2 style="font-weight: 800; letter-spacing: 4px; text-align:center" class="mb-4 mt-4 ml-4 ">Name: <%= game.name %>
 		</h2>
 		<h3 class="text-3xl">mode: <%= game.mode %>
 		</h3>
@@ -109,7 +109,6 @@
 			var score = null;
 
 			const index = $('.index').attr('name');
-			console.log("index " +index)
 
 			//const playerNames = "<%= game.players %>"
 
@@ -134,9 +133,6 @@
 				e.addEventListener('click', async (element) => {
 
 					try {
-						console.log(e.id)
-						console.log($('.user_' + select).attr('id'))
-
 						const data = await axios.post(`http://localhost:5000/games/${gameId}/shots`, {
 							playerId: $('.select').attr('id'),
 							secteur: e.id,
@@ -163,10 +159,7 @@
 						} else {
 
 						}
-
-						console.log('LOURD')
 						
-
 
 					} catch (err) {
 						console.error(err.message);
@@ -179,13 +172,6 @@
 			})
 
 		})
-
-		$('.player_list').each((e) => {
-			console.log('okok')
-
-		})
-
-
 
 
 

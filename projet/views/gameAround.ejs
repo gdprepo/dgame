@@ -9,7 +9,7 @@
 
 
 	<div class="container mx-auto">
-		<h2 class="text-4xl">Name: <%= game.name %> Mode Around
+		<h2 style="font-weight: 800; letter-spacing: 4px; text-align:center" class="mb-4 mt-4 ml-4 ">Name: <%= game.name %>
 		</h2>
 		<h3 class="text-3xl">mode: <%= game.mode %>
 		</h3>
@@ -144,13 +144,11 @@
 
 			//	$('.user_' + select).addClass('select');
 			//	$('#name').text($('.user_' + select).text())
-			console.log("coucou=" + $('.user_' + select).attr('id'))
 			sector.forEach((e) => {
 				e.addEventListener('click', async (element) => {
 
 					try {
-						console.log(e.id)
-						console.log($('.user_' + select).attr('id'))
+
 
 						const data = await axios.post(`http://localhost:5000/games/${gameId}/shots`, {
 							playerId: $('.select').attr('id'),
@@ -170,10 +168,7 @@
 						} else {
 							
 						}
-
-						console.log('LOURD')
 						
-
 
 					} catch (err) {
 						console.error(err.message);
@@ -186,13 +181,6 @@
 			})
 
 		})
-
-		$('.player_list').each((e) => {
-			console.log('okok')
-
-		})
-
-
 
 
 
