@@ -1,6 +1,6 @@
 # dartGame
 
-Realiser un 3 mode de jeu differents avec Nodejs Express et Mongodb<br/>
+Realiser un 3 mode de jeu differents avec Nodejs Express, Mongodb et Redis<br/>
 Mode de jeu : 301, Around the World, Cricket
 
 Lancer la commande ( à la racine du dossier )
