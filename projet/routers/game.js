@@ -168,6 +168,8 @@ router.get("/:id", async (req, res) => {
 
     if (game.mode == "around-the-world") {
       modeSelect = new AroundTheWorld(gameEngine.players);
+
+
     
       res.render("gameAround.ejs", {
         game: game,
@@ -298,6 +300,7 @@ router.patch("/:id", async (req, res) => {
 
       var list = gameEngine.randomize(game._id);
 
+
       const promise1 = Promise.resolve(list);
       var firstId = null;
       var index2 = 0;
@@ -306,6 +309,8 @@ router.patch("/:id", async (req, res) => {
         // expected output: 123
         if (index2 == 0) {
           firstId = value.toString();
+      console.log('CHECK= '+ firstId)
+
 
           const updGamecurrentId = await Game.findByIdAndUpdate(
             req.params.id,
@@ -503,17 +508,36 @@ router.post("/:id/shots", async (req, res) => {
         );
 
         var id = null;
-        var check = false;
+        var check = 0;
+        var idSelect = 0;
 
-        playersIds.forEach((e) => {
-          if (check == true) {
-            id = e;
-          }
-          if (e == playerId) {
-            check = true;
-          }
+        var playersIds = [];
+
+        playersIds = gameP.map((e) => {
+          return e.playerId;
         });
 
+        console.log("playersIds= " +playersIds)
+
+
+        playersIds.forEach((e) => {
+          if (e == game.currentPlayerId) {
+            idSelect = check + 1;
+          }
+
+          check++
+        });
+
+      //  console.log("IDSELECT3= " +playersIds[idSelect])
+
+
+        if (idSelect < playersIds.length) {
+          id = playersIds[idSelect];
+        } else {
+          id = playersIds[0];
+          
+        }
+        
         if (id == null) {
           id = playersIds[0];
         }
@@ -629,17 +653,36 @@ router.post("/:id/shots", async (req, res) => {
         );
 
         var id = null;
-        var check = false;
+        var check = 0;
+        var idSelect = 0;
 
-        playersIds.forEach((e) => {
-          if (check == true) {
-            id = e;
-          }
-          if (e == playerId) {
-            check = true;
-          }
+        var playersIds = [];
+
+        playersIds = gameP.map((e) => {
+          return e.playerId;
         });
 
+        console.log("playersIds= " +playersIds)
+
+
+        playersIds.forEach((e) => {
+          if (e == game.currentPlayerId) {
+            idSelect = check + 1;
+          }
+
+          check++
+        });
+
+      //  console.log("IDSELECT3= " +playersIds[idSelect])
+
+
+        if (idSelect < playersIds.length) {
+          id = playersIds[idSelect];
+        } else {
+          id = playersIds[0];
+          
+        }
+        
         if (id == null) {
           id = playersIds[0];
         }
@@ -698,17 +741,36 @@ router.post("/:id/shots", async (req, res) => {
           message = "NEXT";
         }
         var id = null;
-        var check = false;
+        var check = 0;
+        var idSelect = 0;
 
-        playersIds.forEach((e) => {
-          if (check == true) {
-            id = e;
-          }
-          if (e == playerId) {
-            check = true;
-          }
+        var playersIds = [];
+
+        playersIds = gameP.map((e) => {
+          return e.playerId;
         });
 
+        console.log("playersIds= " +playersIds)
+
+
+        playersIds.forEach((e) => {
+          if (e == game.currentPlayerId) {
+            idSelect = check + 1;
+          }
+
+          check++
+        });
+
+      //  console.log("IDSELECT3= " +playersIds[idSelect])
+
+
+        if (idSelect < playersIds.length) {
+          id = playersIds[idSelect];
+        } else {
+          id = playersIds[0];
+          
+        }
+        
         if (id == null) {
           id = playersIds[0];
         }
@@ -769,17 +831,36 @@ router.post("/:id/shots", async (req, res) => {
         message = "RATE NEXT";
 
         var id = null;
-        var check = false;
+        var check = 0;
+        var idSelect = 0;
 
-        playersIds.forEach((e) => {
-          if (check == true) {
-            id = e;
-          }
-          if (e == playerId) {
-            check = true;
-          }
+        var playersIds = [];
+
+        playersIds = gameP.map((e) => {
+          return e.playerId;
         });
 
+        console.log("playersIds= " +playersIds)
+
+
+        playersIds.forEach((e) => {
+          if (e == game.currentPlayerId) {
+            idSelect = check + 1;
+          }
+
+          check++
+        });
+
+      //  console.log("IDSELECT3= " +playersIds[idSelect])
+
+
+        if (idSelect < playersIds.length) {
+          id = playersIds[idSelect];
+        } else {
+          id = playersIds[0];
+          
+        }
+        
         if (id == null) {
           id = playersIds[0];
         }

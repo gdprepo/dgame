@@ -47,15 +47,15 @@
 					<% for (var i=0; i < game.players.length; i++) { %>
 
 						<% if (game.currentPlayerId==players[i]) { %>
-							<li style="text-align: center;" id="<%= players[i] %>"
-								class="select list-group-item player_list user_<%= i %>">
+							<li  style="text-align: center;" id="<%= players[i] %>"
+								class="select pCheck list-group-item player_list user_<%= i %>">
 								<%= game.players[i] %>
 									<input type="hidden" class="index" name="<%= i %>">
 							</li>
 
 							<% } else { %>
 								<li style="text-align: center;" id="<%= players[i] %>"
-									class="list-group-item player_list user_<%= i %>">
+									class="list-group-item pCheck player_list user_<%= i %>">
 									<%= game.players[i] %>
 								</li>
 
@@ -97,6 +97,8 @@
 
 		const gameId = $('#gameId').attr('name');
 
+		const pCheck = document.querySelectorAll('.pCheck');
+
 		var select = 0
 
 
@@ -105,6 +107,12 @@
 			var playerName = null;
 			var shots = null;
 			var score = null;
+			const test = '<%= gameplayer[0].remainingShots %>';
+
+			if ( test == undefined) {
+				window.location.href = `http://localhost:5000/games/${gameId}`;
+			}
+
 
 			const index = $('.index').attr('name');
 			console.log("index " +index)
@@ -129,6 +137,20 @@
 				window.location.href = `http://localhost:5000/games/${gameId}`;
 			}
 
+			var ok = 0
+			pCheck.forEach((e) => {
+				if (e.classList.contains("select")) {
+					ok++
+				}
+			
+			});
+
+			if (ok == 0 || ok > 1) {
+				window.location.href = `http://localhost:5000/games/${gameId}`;
+			}
+
+
+
 			let cible = 0;
 			sector.forEach((e) => {
 
@@ -141,9 +163,6 @@
 
 			})
 		
-
-			//	$('.user_' + select).addClass('select');
-			//	$('#name').text($('.user_' + select).text())
 			sector.forEach((e) => {
 				e.addEventListener('click', async (element) => {
 
