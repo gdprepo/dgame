@@ -3,6 +3,12 @@
 Realiser un 3 mode de jeu differents avec Nodejs Express, Mongodb et Redis<br/>
 Mode de jeu : 301, Around the World, Cricket
 
+Mongodb models :
+  - Player
+  - Game
+  - GamePlayer
+  - GameShot
+
 Lancer la commande ( à la racine du dossier )
 - node ./app.js
 
