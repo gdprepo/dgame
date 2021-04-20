@@ -20,15 +20,14 @@ http://localhost:5000/games/{id}/edit
 
 ![alt text](https://github.com/wewlr17/dgame/blob/master/projet/screen/game-edit.png "game-edit")
 
-
 Vous trouverez la liste des parties créées.
 Vous avez la posibilité de creer un nouvelle partie, d'en supprimer ou modifier une.
 
-L'adresse suivante : http://localhost:5000/players
+L'adresse : http://localhost:5000/players
 
 ![alt text](https://github.com/wewlr17/dgame/blob/master/projet/screen/player-list.png "player list")
 
-L'adresse suivante : http://localhost:5000/players/{id}/edit
+http://localhost:5000/players/{id}/edit
 
 ![alt text](https://github.com/wewlr17/dgame/blob/master/projet/screen/player-edit.png "player list")
 
