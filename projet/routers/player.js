@@ -2,6 +2,7 @@ const express = require('express');
 const Player = require('../models/Player');
 
 const advancedResults = require('../middleware/advancedResults');
+const client = require("./../redis-client");
 
 // Define Router
 const router = express.Router();
@@ -100,6 +101,10 @@ router.get('/:id/edit', async (req, res) => {
 	try {
 		const player = await Player.findById(req.params.id);
 
+		redisKey = "player:data";
+
+		client.setex(redisKey, 600, JSON.stringify(player));
+
 		if (!player)
 			return res.status(404).json({
 				msg: `Player with id ${req.params.id} not found`,
@@ -107,6 +112,7 @@ router.get('/:id/edit', async (req, res) => {
 
 		if (req.header('Accept').includes('application/json'))
 			return res.status(406).json({ msg: 'NOT_API_AVAILABLE' });
+
 
 		res.render('playerEdit', { player });
 	} catch (err) {
